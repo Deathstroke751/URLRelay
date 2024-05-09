@@ -1,14 +1,14 @@
 from flask import Flask, jsonify, request
 import requests
-# from flask_cors import CORS  # Import CORS from Flask-CORS
+from flask_cors import CORS  # Import CORS from Flask-CORS
 
 app = Flask(__name__)
-# CORS(app)  # Enable CORS for all routes
+CORS(app)  # Enable CORS for all routes
 
 
 @app.route('/')
 def index():
-    return jsonify({"version": "1", "message": "Flask Relay Program is working!"}), 200
+    return jsonify({"version": "1.1", "message": "Flask Relay Program is working!"}), 200
 
 
 @app.route('/relay', methods=['GET', 'POST'])
