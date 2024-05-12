@@ -8,31 +8,33 @@ CORS(app)  # Enable CORS for all routes
 
 @app.route('/')
 def index():
-    return jsonify({"version": "1.1", "message": "Flask Relay Program is working!"}), 200
+    return jsonify({"version": "1.2", "message": "Flask Relay Program is working!"}), 200
 
 
 @app.route('/relay', methods=['GET', 'POST'])
 def relay():
-    _args = request.args.to_dict()
-    link = request.args.get(
-        'link') if request.method == 'GET' else request.form.get('link')
-    if not link:
-        return jsonify(error="Link parameter is missing"), 400
+    link = request.args.get('link')
     # Iterate through the dictionary and construct the URL string
+    _args = request.args.to_dict()
     for key, value in _args.items():
         if key == 'link':
             link = value
         else:
             link += f"&{key}={value}"
+    if not link:
+        return jsonify(error="Link parameter is missing"), 400
 
     try:
         if request.method == 'GET':
             response = requests.get(link)
         else:
-            response = requests.post(link, data=request.form)
+            if request.headers['Content-Type'] == 'application/json':
+                response = requests.post(link, json=request.json)
+            else:
+                response = requests.post(link, data=request.form)
         response.raise_for_status()
     except requests.exceptions.RequestException as e:
-        return jsonify(error=str(e)), 500
+        return jsonify(error=str(e)), response.status_code
 
     content_type = response.headers.get('Content-Type', '')
     if 'application/json' in content_type:
